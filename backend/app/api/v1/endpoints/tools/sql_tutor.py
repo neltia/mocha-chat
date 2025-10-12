@@ -180,7 +180,7 @@ async def design_schema(data: ScenarioInput):
             result_code=200,
             result_msg="Natural language to SQL conversion successful",
             data={
-                "query": data.query,
+                "business_requirements": data.scenario,
                 "database_type": data.database_type,
                 "expected_scale": data.expected_scale,
                 "scenario": data.scenario,
@@ -197,7 +197,7 @@ async def design_schema(data: ScenarioInput):
             result_code=500,
             result_msg=f"Shema design error: {str(e)}",
             data={
-                "query": data.query,
+                "business_requirements": data.scenario,
                 "database_type": data.database_type
             }
         )
