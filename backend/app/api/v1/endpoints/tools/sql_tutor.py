@@ -3,8 +3,8 @@ import logging
 
 from app.core.groq_client import call_groq_with_yaml
 from app.utils.prompt_loader import get_prompt, render_prompt
-from app.schemas.sql_tutor import TextInput, SQLInput, ScenarioInput
-from app.utils.json_utils import parse_json_response, validate_json_structure, remove_emojis
+from app.schemas.sql_tutor import TextInput, SQLInput
+from app.utils.json_utils import parse_json_response, validate_json_structure
 from app.schemas.ret_result import ResponseResult
 
 router = APIRouter()
@@ -151,53 +151,6 @@ async def optimize_sql(data: SQLInput):
             result_msg=f"Error converting natural language to SQL: {str(e)}",
             data={
                 "query": data.query,
-                "database_type": data.database_type
-            }
-        )
-
-
-@router.post("/schema")
-async def design_schema(data: ScenarioInput):
-    """비즈니스 요구사항에 따라 데이터베이스 스키마를 설계합니다."""
-    try:
-        prompt_data = get_prompt("sql_tutor_prompts.yaml", "schema_design")
-        system_prompt = prompt_data.get("system", "")
-        user_template = prompt_data.get("user", "")
-
-        user_prompt = render_prompt(user_template, {
-            "business_requirements": data.scenario,
-            "database_type": data.database_type,
-            "expected_scale": data.expected_scale,
-            "performance_requirements": data.performance_requirements
-        })
-
-        result = call_groq_with_yaml(system_prompt, user_prompt)
-
-        # 스키마 설계는 DBML 형식이므로 JSON 파싱하지 않음
-        cleaned_result = remove_emojis(str(result))
-
-        return await ResponseResult.success(
-            result_code=200,
-            result_msg="Natural language to SQL conversion successful",
-            data={
-                "business_requirements": data.scenario,
-                "database_type": data.database_type,
-                "expected_scale": data.expected_scale,
-                "scenario": data.scenario,
-                "performance_requirements": data.performance_requirements,
-                "execution_result": {
-                    "schema_design": cleaned_result,
-                }
-            }
-        )
-
-    except Exception as e:
-        logger.exception(f"스키마 설계 오류: {e}", exc_info=True)
-        return await ResponseResult.error(
-            result_code=500,
-            result_msg=f"Shema design error: {str(e)}",
-            data={
-                "business_requirements": data.scenario,
                 "database_type": data.database_type
             }
         )
