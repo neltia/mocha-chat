@@ -6,3 +6,15 @@ playground/
 
 # 환경 설정 파일
 .env
+
+# md 파일 제외
+*.md
+
+# db 파일 제외
+*.db
+*.sqlite3
+*.journal
+*.pickle
+
+# 바이너리 파일 제외
+*.bin
